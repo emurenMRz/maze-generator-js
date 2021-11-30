@@ -1,0 +1,25 @@
+{
+  "name": "maze-generator",
+  "version": "1.0.0",
+  "description": "rogue-like maze generator for javascript.",
+  "main": "./src/index.js",
+  "exports": "./src/index.js",
+  "private": true,
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack --mode production",
+    "watch": "webpack --mode development --watch"
+  },
+  "keywords": [
+    "rogue-like",
+    "javascript",
+    "maze",
+    "dungeon"
+  ],
+  "author": "emurenMRz",
+  "license": "MIT",
+  "dependencies": {
+    "webpack": "^5.64.4",
+    "webpack-cli": "^4.9.1"
+  }
+}
