@@ -1,6 +1,7 @@
 import * as Room from './room/build.js';
 import SplitterRough from './region-splitter/rough.js';
 import Splitter from './region-splitter/standard.js';
+import SplitterClassic from './region-splitter/classic.js';
 
 export default class Maze {
 	#width = 0;
@@ -25,24 +26,28 @@ export default class Maze {
 	at(offset) { return this.#field[offset / this.#width | 0][offset % this.#width]; }
 
 	build(type) {
-		this.#rooms = [];
-		this.#roomTree = [];
-
-		for (let y = 0; y < this.#height; ++y)
-			for (let x = 0; x < this.#width; ++x)
-				this.#field[y][x] = 0;
+		this.clear();
 
 		switch (type) {
 			case 'rough': SplitterRough(this, 0, 0, this.#width - 1, this.#height - 1); break;
+			case 'classic': SplitterClassic(this, 0, 0, this.#width - 1, this.#height - 1); break;
 			default: Splitter(this, 0, 0, this.#width - 1, this.#height - 1); break;
 		}
 	}
 
-	getRoom(no) { return this.#rooms[no]; }
-	addRoom(room) {
-		const no = this.#rooms.length;
-		this.#rooms.push(room);
-		return this.addRoomNode(new Room.Node(Room.Direction.Free, no));
+	clear() {
+		this.#rooms = [];
+		this.#roomTree = [];
+		for (let y = 0; y < this.#height; ++y)
+			for (let x = 0; x < this.#width; ++x)
+				this.#field[y][x] = 0;
+	}
+
+	getRoom(id) { return this.#rooms[id]; }
+	addRoom(x1, y1, x2, y2) {
+		const id = this.#rooms.length;
+		this.#rooms.push(new Room.Data(id, x1, y1, x2, y2));
+		return this.addRoomNode(new Room.Node(Room.Direction.Free, id));
 	}
 
 	getRoomNode(no) { return this.#roomTree[no]; }
@@ -50,5 +55,12 @@ export default class Maze {
 		const nodeNo = this.#roomTree.length;
 		this.#roomTree.push(roomNode);
 		return nodeNo;
+	}
+
+	getRoomByNodeNo(nodeNo) {
+		const node = this.getRoomNode(nodeNo);
+		if (node.dir != Room.Direction.Free)
+			throw new TypeError('Not room node.');
+		return this.getRoom(node.room1);
 	}
 }
