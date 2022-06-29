@@ -1,7 +1,9 @@
+import * as Tile from './tile-types.js';
 import * as Room from './room/build.js';
 import SplitterRough from './region-splitter/rough.js';
 import Splitter from './region-splitter/standard.js';
 import SplitterClassic from './region-splitter/classic.js';
+import PerlinNoise from './perlin-noise.js';
 
 export default class Maze {
 	#width = 0;
@@ -33,6 +35,17 @@ export default class Maze {
 			case 'classic': SplitterClassic(this, 0, 0, this.#width - 1, this.#height - 1); break;
 			default: Splitter(this, 0, 0, this.#width - 1, this.#height - 1); break;
 		}
+	}
+
+	heightMap(wScale = 4, hScale = 4, upBorder = .25, upTile = Tile.Grass, downBorder = -.25, downTile = Tile.Water) {
+		const table = PerlinNoise.makePermutation;
+		for (let y = 0; y < this.#height; ++y)
+			for (let x = 0; x < this.#width; ++x)
+				if (this.#field[y][x] & (Tile.Route | Tile.Room)) {
+					const n = PerlinNoise.octaveValue(table, x / this.#width * wScale, y / this.#height * hScale, 0, 4);
+					if (n > upBorder) this.#field[y][x] |= upTile;
+					else if (n < downBorder) this.#field[y][x] |= downTile;
+				}
 	}
 
 	clear() {
