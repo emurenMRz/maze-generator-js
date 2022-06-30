@@ -1,5 +1,5 @@
 import Random from '/src/random.js';
-import * as Tile from '/src/tile-types.js';
+import Flag from "../tile-flags.js";
 
 export const Direction = {
 	Free: 0,
@@ -33,7 +33,14 @@ export class Node {
 export function build(field, x1, y1, x2, y2) {
 	for (let y = y1; y <= y2; ++y)
 		for (let x = x1; x <= x2; ++x)
-			field[y][x] |= Tile.Route | Tile.Room;
+			field[y][x] |= Flag.Route | Flag.Room;
+}
+
+export function roughRoom(field, x1, y1, x2, y2) {
+	for (let y = y1; y <= y2; ++y)
+		for (let x = x1; x <= x2; ++x)
+			if (Random.P(95))
+				field[y][x] |= Flag.Route | Flag.Room;
 }
 
 /**
@@ -58,13 +65,13 @@ export function adjustRect(x1, y1, x2, y2) {
 
 	if (w - ROOM_WIDTH > 0) {
 		const ww = Random.range(ROOM_WIDTH, w);
-		x1 += Random.int(w - ww);
+		x1 += Random.int1(w - ww);
 		x2 = x1 + ww;
 		w = ww;
 	}
 	if (h - ROOM_WIDTH > 0) {
 		const wh = Random.range(ROOM_WIDTH, h);
-		y1 += Random.int(h - wh);
+		y1 += Random.int1(h - wh);
 		y2 = y1 + wh;
 		h = wh;
 	}
@@ -91,7 +98,7 @@ export function adjustRect(x1, y1, x2, y2) {
  * @param {Data} room1 
  * @param {Data} room2 
  * @param {Direction} dir 
- * @param {Tile} door 
+ * @param {Flag} door 
  */
 export function connect(field, room1, room2, dir, door = 0) {
 	let x1, x2;
@@ -108,23 +115,25 @@ export function connect(field, room1, room2, dir, door = 0) {
 			y2 = room1.bottom < room2.bottom ? room1.bottom : room2.bottom;
 			y1 = y2 = Random.range(y1, y2);
 		}
-		field[y1][x1] |= Tile.Route | door;
-		field[y2][x2] |= Tile.Route | door;
+		field[y1][x1] |= Flag.Route | door;
+		field[y2][x2] |= Flag.Route | door;
 		++x1;
 		--x2;
 		let x = x1;
+		const row1 = field[y1];
 		for (; ; ++x) {
-			field[y1][x] |= Tile.Route;
-			if (field[y1][x] & Tile.Border)
+			row1[x] |= Flag.Route;
+			if (row1[x] & Flag.Border)
 				break;
 		}
 		const border = x;
+		const row2 = field[y2];
 		for (; x <= x2; ++x)
-			field[y2][x] |= Tile.Route;
+			row2[x] |= Flag.Route;
 		if (y1 > y2)
 			[y1, y2] = [y2, y1];
 		for (let y = y1; y <= y2; ++y)
-			field[y][border] |= Tile.Route;
+			field[y][border] |= Flag.Route;
 	} else if (dir == Direction.Vertical) {
 		y1 = room1.bottom + 1;
 		y2 = room2.top - 1;
@@ -136,23 +145,23 @@ export function connect(field, room1, room2, dir, door = 0) {
 			x2 = room1.right < room2.right ? room1.right : room2.right;
 			x1 = x2 = Random.range(x1, x2);
 		}
-		field[y1][x1] |= Tile.Route | door;
-		field[y2][x2] |= Tile.Route | door;
+		field[y1][x1] |= Flag.Route | door;
+		field[y2][x2] |= Flag.Route | door;
 		++y1;
 		--y2;
 		let y = y1;
 		for (; ; ++y) {
-			field[y][x1] |= Tile.Route;
-			if (field[y][x1] & Tile.Border)
+			field[y][x1] |= Flag.Route;
+			if (field[y][x1] & Flag.Border)
 				break;
 		}
 		const border = y;
 		for (; y <= y2; ++y)
-			field[y][x2] |= Tile.Route;
+			field[y][x2] |= Flag.Route;
 		if (x1 > x2)
 			[x1, x2] = [x2, x1];
 		for (let x = x1; x <= x2; ++x)
-			field[border][x] |= Tile.Route;
+			field[border][x] |= Flag.Route;
 	}
 
 	room1.connectedRoom.push(room2.id);

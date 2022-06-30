@@ -1,8 +1,10 @@
+import Random from "./random.js";
+
 export default class PerlinNoise {
 	static get makePermutation() {
 		const base = [...Array(256)].map((v, i) => i);
 		for (const i in base) {
-			const j = Math.random() * base.length | 0;
+			const j = Random.value * base.length | 0;
 			[base[i], base[j]] = [base[j], base[i]];
 		}
 		return base.concat(base);

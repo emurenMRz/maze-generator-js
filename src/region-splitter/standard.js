@@ -1,12 +1,12 @@
 import Random from '/src/random.js';
-import * as Tile from '/src/tile-types.js';
-import * as Room from '/src/room/build.js';
+import Flag from "../tile-flags.js";
+import * as Room from "../room/build.js";
 
 export default function splitRegion(maze, x1, y1, x2, y2, depth = 0) {
 	if (depth > 3)
 		return readyRoom(maze, x1, y1, x2, y2);
 
-	const v = Math.random();
+	const v = Random.value;
 	const w = x2 - x1;
 	const h = y2 - y1;
 
@@ -19,7 +19,7 @@ export default function splitRegion(maze, x1, y1, x2, y2, depth = 0) {
 		const room2 = splitRegion(maze, border, y1, x2, y2, depth + 1);
 
 		for (let y = y1; y <= y2; ++y)
-			maze.field[y][border] |= Tile.Border;
+			maze.field[y][border] |= Flag.Border;
 
 		return connectRoom(maze, room1, room2, Room.Direction.Horizon);
 	} else {
@@ -31,7 +31,7 @@ export default function splitRegion(maze, x1, y1, x2, y2, depth = 0) {
 		const room2 = splitRegion(maze, x1, border, x2, y2, depth + 1);
 
 		for (let x = x1; x <= x2; ++x)
-			maze.field[border][x] |= Tile.Border;
+			maze.field[border][x] |= Flag.Border;
 
 		return connectRoom(maze, room1, room2, Room.Direction.Vertical);
 	}
@@ -70,13 +70,13 @@ function connectRoom(maze, room1, room2, dir) {
 	node2.parent = nodeNo;
 
 	while (node1.dir != Room.Direction.Free)
-		node1 = maze.getRoomNode(node1.dir == dir ? node1.room2 : Random.coinToss() ? node1.room1 : node1.room2);
+		node1 = maze.getRoomNode(node1.dir == dir ? node1.room2 : Random.coinToss ? node1.room1 : node1.room2);
 	while (node2.dir != Room.Direction.Free)
-		node2 = maze.getRoomNode(node2.dir == dir ? node2.room1 : Random.coinToss() ? node2.room1 : node2.room2);
+		node2 = maze.getRoomNode(node2.dir == dir ? node2.room1 : Random.coinToss ? node2.room1 : node2.room2);
 	const r1 = maze.getRoom(node1.room1);
 	const r2 = maze.getRoom(node2.room1);
 
-	Room.connect(maze.field, r1, r2, dir, Tile.Door);
+	Room.connect(maze.field, r1, r2, dir, Flag.Door);
 
 	return nodeNo;
 }

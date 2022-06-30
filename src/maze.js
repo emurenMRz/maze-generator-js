@@ -1,9 +1,16 @@
-import * as Tile from './tile-types.js';
-import * as Room from './room/build.js';
-import SplitterRough from './region-splitter/rough.js';
-import Splitter from './region-splitter/standard.js';
-import SplitterClassic from './region-splitter/classic.js';
-import PerlinNoise from './perlin-noise.js';
+import Flag from "./tile-flags.js";
+import * as Room from "./room/build.js";
+import SplitterClassic from "./region-splitter/classic.js";
+import SplitterRough from "./region-splitter/rough.js";
+import Splitter from "./region-splitter/standard.js";
+import PerlinNoise from "./perlin-noise.js";
+
+export const BuildType = Object.freeze({
+	Standard: Symbol("Standard"),
+	Classic: Symbol("Classic"),
+	Rough: Symbol("Rough"),
+	BigRoom: Symbol("BigRoom"),
+});
 
 export default class Maze {
 	#width = 0;
@@ -27,21 +34,22 @@ export default class Maze {
 	get(x, y) { return this.#field[y][x]; }
 	at(offset) { return this.#field[offset / this.#width | 0][offset % this.#width]; }
 
-	build(type) {
+	build(type = BuildType.Standard) {
 		this.clear();
 
 		switch (type) {
-			case 'rough': SplitterRough(this, 0, 0, this.#width - 1, this.#height - 1); break;
-			case 'classic': SplitterClassic(this, 0, 0, this.#width - 1, this.#height - 1); break;
+			case BuildType.Classic: SplitterClassic(this, 0, 0, this.#width - 1, this.#height - 1); break;
+			case BuildType.Rough: SplitterRough(this, 0, 0, this.#width - 1, this.#height - 1); break;
+			case BuildType.BigRoom: Room.roughRoom(this.field, 1, 1, this.#width - 2, this.#height - 2); break;
 			default: Splitter(this, 0, 0, this.#width - 1, this.#height - 1); break;
 		}
 	}
 
-	heightMap(wScale = 4, hScale = 4, upBorder = .25, upTile = Tile.Grass, downBorder = -.25, downTile = Tile.Water) {
+	heightMap(wScale = 4, hScale = 4, upBorder = .25, upTile = Flag.Grass, downBorder = -.25, downTile = Flag.Water) {
 		const table = PerlinNoise.makePermutation;
 		for (let y = 0; y < this.#height; ++y)
 			for (let x = 0; x < this.#width; ++x)
-				if (this.#field[y][x] & (Tile.Route | Tile.Room)) {
+				if (this.#field[y][x] & (Flag.Route | Flag.Room)) {
 					const n = PerlinNoise.octaveValue(table, x / this.#width * wScale, y / this.#height * hScale, 0, 4);
 					if (n > upBorder) this.#field[y][x] |= upTile;
 					else if (n < downBorder) this.#field[y][x] |= downTile;
@@ -73,7 +81,7 @@ export default class Maze {
 	getRoomByNodeNo(nodeNo) {
 		const node = this.getRoomNode(nodeNo);
 		if (node.dir != Room.Direction.Free)
-			throw new TypeError('Not room node.');
+			throw new TypeError("Not room node.");
 		return this.getRoom(node.room1);
 	}
 }

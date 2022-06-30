@@ -1,4 +1,4 @@
-import * as Tile from './tile-types.js';
-import Maze from './maze.js';
+import Flag from "./tile-flags.js";
+import Maze, { BuildType } from "./maze.js";
 
-export { Tile, Maze };
+export default { Flag, Maze, BuildType };

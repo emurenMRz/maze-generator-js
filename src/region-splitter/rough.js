@@ -1,12 +1,12 @@
 import Random from '/src/random.js';
-import * as Tile from '/src/tile-types.js';
-import * as Room from '/src/room/build.js';
+import Flag from "../tile-flags.js";
+import * as Room from "../room/build.js";
 
 export default function splitRegion(maze, x1, y1, x2, y2, depth = 0) {
 	const w = x2 - x1;
 	const h = y2 - y1;
 
-	if (w < 10 || h < 10 || Random.p(depth))
+	if (w < 10 || h < 10 || Random.P(depth))
 		return readyRoom(maze, x1, y1, x2, y2);
 
 	++depth;
@@ -26,16 +26,16 @@ export default function splitRegion(maze, x1, y1, x2, y2, depth = 0) {
 		const d = j > i ? 1 : -1;
 
 		for (let x = room1[2]; x <= border; ++x)
-			maze.field[i][x] |= Tile.Route;
-		maze.field[i][room1[2]] |= Tile.Door;
+			maze.field[i][x] |= Flag.Route;
+		maze.field[i][room1[2]] |= Flag.Door;
 		for (let x = border; x <= room2[0]; ++x)
-			maze.field[j][x] |= Tile.Route;
-		maze.field[j][room2[0]] |= Tile.Door;
+			maze.field[j][x] |= Flag.Route;
+		maze.field[j][room2[0]] |= Flag.Door;
 		if (j != i)
 			for (let y = i; y != j; y += d)
-				maze.field[y][border] |= Tile.Route;
+				maze.field[y][border] |= Flag.Route;
 
-		return Random.coinToss() ? room1 : room2;
+		return Random.coinToss ? room1 : room2;
 	} else {
 		const border = Random.range(y1 + 5, y2 - 5);
 		const room1 = splitRegion(maze, x1, y1, x2, border - 1, depth);
@@ -51,16 +51,16 @@ export default function splitRegion(maze, x1, y1, x2, y2, depth = 0) {
 		const d = j > i ? 1 : -1;
 
 		for (let y = room1[3]; y <= border; ++y)
-			maze.field[y][i] |= Tile.Route;
-		maze.field[room1[3]][i] |= Tile.Door;
+			maze.field[y][i] |= Flag.Route;
+		maze.field[room1[3]][i] |= Flag.Door;
 		for (let y = border; y <= room2[1]; ++y)
-			maze.field[y][j] |= Tile.Route;
-		maze.field[room2[1]][j] |= Tile.Door;
+			maze.field[y][j] |= Flag.Route;
+		maze.field[room2[1]][j] |= Flag.Door;
 		if (j != i)
 			for (let x = i; x != j; x += d)
-				maze.field[border][x] |= Tile.Route;
+				maze.field[border][x] |= Flag.Route;
 
-		return Random.coinToss() ? room1 : room2;
+		return Random.coinToss ? room1 : room2;
 	}
 }
 

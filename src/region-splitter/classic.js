@@ -1,6 +1,6 @@
 import Random from '/src/random.js';
-import * as Tile from '/src/tile-types.js';
-import * as Room from '/src/room/build.js';
+import Flag from "../tile-flags.js";
+import * as Room from "../room/build.js";
 
 export default function splitRegion(maze, x1, y1, x2, y2) {
 	const w = x2 - x1;
@@ -29,12 +29,12 @@ export default function splitRegion(maze, x1, y1, x2, y2) {
 	for (; ;)
 		try {
 			for (let x = x1; x <= x2; ++x) {
-				maze.field[borderH1][x] |= Tile.Border;
-				maze.field[borderH2][x] |= Tile.Border;
+				maze.field[borderH1][x] |= Flag.Border;
+				maze.field[borderH2][x] |= Flag.Border;
 			}
 			for (let y = y1; y <= y2; ++y) {
-				maze.field[y][borderV1] |= Tile.Border;
-				maze.field[y][borderV2] |= Tile.Border;
+				maze.field[y][borderV1] |= Flag.Border;
+				maze.field[y][borderV2] |= Flag.Border;
 			}
 
 			connectAllRooms(maze, setupRooms(maze, regions));
@@ -126,9 +126,9 @@ function connectAllRooms(maze, rooms) {
 		if (!result.length) {
 			if (connectedAlready)
 				return undefined;
-			throw new TypeError('No connection cell.');
+			throw new TypeError("No connection cell.");
 		}
-		return Random.randomChoice(result);
+		return Random.randomValue(result);
 	};
 	const connect = room => {
 		const choice = targetChoice(rooms, room);
@@ -140,7 +140,7 @@ function connectAllRooms(maze, rooms) {
 		return true;
 	};
 
-	// console.groupCollapsed('classic field');
+	// console.groupCollapsed("classic field");
 	for (const room of Object.values(rooms))
 		connect(room);
 	// console.groupEnd();
@@ -150,7 +150,7 @@ function connectAllRooms(maze, rooms) {
 		for (const room of Object.values(rooms))
 			if (id == room.data.id)
 				return room.cellNo;
-		throw new RangeError('Not found cell.')
+		throw new RangeError("Not found cell.")
 	};
 	const recursiveConnection = (group, data) => {
 		for (const id of data.connectedRoom) {
@@ -168,7 +168,7 @@ function connectAllRooms(maze, rooms) {
 		return group;
 	};
 
-	// console.group('classic field - unconnected');
+	// console.group("classic field - unconnected");
 	const group = initCellGroup();
 	for (const cellNo of Random.shuffle(Object.keys(rooms))) {
 		if (group.indexOf(cellNo | 0) == -1) {

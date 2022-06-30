@@ -1,9 +1,8 @@
-import { Tile, Maze } from './maze-generator.js';
+import Generator from './maze-generator.js';
 
 function main(type) {
 	const range = (min, max) => (Math.random() * (max - min) | 0) + min;
-	// const maze = new Maze(32, 32);
-	const maze = new Maze(range(32, 64), range(32, 64));
+	const maze = new Generator.Maze(range(32, 64), range(32, 64));
 
 	try {
 		maze.build(type);
@@ -32,19 +31,28 @@ function main(type) {
 	mainScreen.appendChild(flag);
 }
 
+function value2symbol(value) {
+	switch (value) {
+		case "rough": return Generator.BuildType.Rough;
+		case "classic": return Generator.BuildType.Classic;
+		case "big-room": return Generator.BuildType.BigRoom;
+	}
+	return Generator.BuildType.Standard;
+}
+
 addEventListener('load', () => {
 	const mazeType = document.getElementById('maze-type');
-	mazeType.addEventListener('change', e => main(e.target.value));
-	document.getElementById('update').addEventListener('click', e => main(mazeType.value));
+	mazeType.addEventListener('change', e => main(value2symbol(e.target.value)));
+	document.getElementById('update').addEventListener('click', e => main(value2symbol(mazeType.value)));
 	main();
 });
 
 function toGrid(grid) {
-	if (grid & Tile.Door) return { char: '＋', color: 'brown' };
-	if (grid & Tile.Grass) return { char: 'ｗ', color: 'lightgreen' };
-	if (grid & Tile.Water) return { char: 'ｗ', color: 'deepskyblue' };
-	if (grid & Tile.Room) return { char: '．', color: 'white' };
-	if (grid & Tile.Route) return { char: '＃', color: 'white' };
-	if (grid & Tile.Border) return { char: '■', color: 'gray' };
+	if (grid & Generator.Flag.Door) return { char: '＋', color: 'brown' };
+	if (grid & Generator.Flag.Grass) return { char: 'ｗ', color: 'lightgreen' };
+	if (grid & Generator.Flag.Water) return { char: 'ｗ', color: 'deepskyblue' };
+	if (grid & Generator.Flag.Room) return { char: '．', color: 'white' };
+	if (grid & Generator.Flag.Route) return { char: '＃', color: 'white' };
+	if (grid & Generator.Flag.Border) return { char: '■', color: 'gray' };
 	return { char: '■', color: 'white' };
 }

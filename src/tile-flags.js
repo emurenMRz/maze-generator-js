@@ -1,0 +1,9 @@
+export default Object.freeze({
+	Route: 0x01,
+	Room: 0x02,
+	Door: 0x04,
+	Border: 0x08,
+	Grass: 0x10,
+	Water: 0x20,
+});
+
