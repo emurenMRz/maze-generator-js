@@ -19,7 +19,7 @@
   "author": "emurenMRz",
   "license": "MIT",
   "dependencies": {
-    "webpack": "^5.64.4",
+    "webpack": "^5.105.0",
     "webpack-cli": "^4.9.1"
   }
 }
